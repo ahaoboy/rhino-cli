@@ -27,7 +27,7 @@ jobs:
       - name: test
         run: |
           bash ./rhino.sh test.js
-      - name: build`
+      - name: build
         run: |
           which java
           which jpackage

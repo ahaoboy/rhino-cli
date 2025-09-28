@@ -6,6 +6,7 @@ fi
 TARGET=$1
 
 RHINO_DIR="rhino"
+RHINO_JAR="rhino-all-1.8.1-20250614.122300-24"
 
 case "$(uname)" in
   Darwin*)
@@ -17,9 +18,9 @@ esac
 PLATFORM=$(uname)
 
 if [[ "$PLATFORM" == "Darwin" ]] || [[ "$PLATFORM" == "Linux" ]]; then
-  jpackage --name rhino --input ./jar --main-jar rhino-all-1.8.0.jar --main-class org.mozilla.javascript.tools.shell.Main --type app-image
+  jpackage --name rhino --input ./jar --main-jar $RHINO_JAR --main-class org.mozilla.javascript.tools.shell.Main --type app-image
 else
-  jpackage --name rhino --input ./jar --main-jar rhino-all-1.8.0.jar --main-class org.mozilla.javascript.tools.shell.Main --type app-image --win-console
+  jpackage --name rhino --input ./jar --main-jar $RHINO_JAR --main-class org.mozilla.javascript.tools.shell.Main --type app-image --win-console
 fi
 
 ls -l $RHINO_DIR

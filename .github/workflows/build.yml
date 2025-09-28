@@ -74,7 +74,7 @@ jobs:
       - name: release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "rhino/*.tar.gz,rhino.sh,rhino-all-1.8.0.jar"
+          artifacts: "rhino/*.tar.gz"
           allowUpdates: true
           tag: "nightly"
           name: "nightly"

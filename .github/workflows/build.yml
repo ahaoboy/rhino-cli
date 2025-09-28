@@ -22,11 +22,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          distribution: "temurin" # See 'Supported distributions' for available options
-          java-version: "21"
+          distribution: "oracle"
+          java-version: "25"
       - name: test
         run: |
           bash ./rhino.sh test.js
+      - name: build`
+        run: |
+          which java
+          which jpackage
+          java --version
+          jpackage --version
+          echo $JAVA_HOME
+
+          bash ./build.sh
+
       - name: release
         uses: ncipollo/release-action@v1
         with:

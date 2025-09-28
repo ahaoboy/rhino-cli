@@ -6,7 +6,7 @@ fi
 TARGET=$1
 
 RHINO_DIR="rhino"
-RHINO_JAR="rhino-all-1.8.1-20250614.122300-24"
+RHINO_JAR="rhino-all-1.8.1-20250614.122300-24.jar"
 
 case "$(uname)" in
   Darwin*)

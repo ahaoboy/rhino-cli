@@ -77,3 +77,7 @@ jobs:
         with:
           artifacts: "rhino/*.tar.gz,rhino.sh,rhino-all-1.8.0.jar"
           allowUpdates: true
+          tag: "nightly"
+          name: "nightly"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: main

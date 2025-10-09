@@ -1,0 +1,109 @@
+name: build
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - "main"
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -CeEuo pipefail {0}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14
+          - target: x86_64-pc-windows-gnu
+            os: windows-latest
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+    name: build-${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "oracle"
+          java-version: "25"
+      - uses: msys2/setup-msys2@v2
+        if: matrix.os == 'windows-latest'
+        with:
+          msystem: MINGW64
+          path-type: inherit
+
+      - name: build-${{ matrix.target }}
+        if: matrix.os != 'windows-latest'
+        shell: "bash"
+        run: |
+          bash build.sh ${{ matrix.target }}
+
+      - name: build-windows
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          bash build.sh ${{ matrix.target }}
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: rhino-${{ matrix.target }}
+          path: ./rhino-${{ matrix.target }}.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: rhino
+          pattern: rhino*
+          merge-multiple: true
+
+      - name: release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "rhino/*.tar.gz"
+          allowUpdates: true
+          tag: "nightly"
+          name: "nightly"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: main
+
+  post-test:
+    needs: ["release"]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: wait
+        run: |
+          sleep 300
+      - uses: easy-install/easy-setup@v1
+        with:
+          url: https://github.com/ahaoboy/rhino-cli
+      - name: test
+        run: |
+          which rhino
+          echo "console.log(1+1)" >> ./test.js
+          rhino ./test.js
